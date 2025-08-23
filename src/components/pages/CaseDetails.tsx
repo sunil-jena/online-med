@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -323,12 +323,14 @@ export default function CaseDetails() {
                                 <div className="flex flex-col justify-between h-full">
                                     <div
                                         className="rounded-3xl p-6 md:p-8"
-                                        style={{ backgroundImage: 'url(/dot-grid.svg)', backgroundRepeat: 'repeat' }}
+                                        style={{
+                                            backgroundImage: 'url(/dot-grid.svg)', backgroundRepeat: 'repeat'
+                                        }}
                                     >
                                         <textarea
                                             value={note}
                                             onChange={(e) => setNote(e.target.value)}
-                                            className="w-full min-h-[460px] bg-transparent outline-none resize-none text-[15px] leading-7 text-[#0E3B8A] font-medium"
+                                            className="w-full min-h-screen bg-transparent outline-none resize-none text-[15px] leading-7 text-[#0E3B8A] font-medium"
                                         />
                                     </div>
 

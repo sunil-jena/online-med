@@ -493,3 +493,31 @@ input[type='text']::-webkit-search-cancel-button {
     }
   }
 }
+
+
+#nprogress .bar {
+  background: var(--color-primary);
+  /* Change this to your preferred color */
+  position: fixed;
+  z-index: 1031;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  /* You can adjust the thickness */
+}
+
+#nprogress .peg {
+  display: none;
+  /* Hide the loading peg */
+}
+
+#nprogress .spinner {
+  display: none;
+  /* Hide the spinner */
+}
+
+/* Custom NProgress styles */
+#nprogress {
+  pointer-events: none;
+}

@@ -5,12 +5,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    LayoutDashboard,
-    FileText,
-    Users,
-    UserCheck,
-    BarChart3,
-    ChevronLeft,
     ChevronDown,
     ChevronUp,
     X,
@@ -26,9 +20,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { cn } from '@/components/lib/utils';
 import Image from 'next/image';
 
-/* ------------------------------------------------------------------
-   Static config (flat, no nested nav)
------------------------------------------------------------------- */
 type FlatNavItem = {
     title: string;
     href: string;
@@ -38,11 +29,11 @@ type FlatNavItem = {
 };
 
 const NAV_MAIN: FlatNavItem[] = [
-    { title: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
-    { title: 'Cases', href: '/cases', icon: <FileText className="h-4 w-4" /> },
-    { title: 'User Profiles', href: '/users', icon: <Users className="h-4 w-4" /> },
-    { title: 'Doctors', href: '/doctors', icon: <UserCheck className="h-4 w-4" /> },
-    { title: 'Quality Analysts', href: '/qa', icon: <BarChart3 className="h-4 w-4" /> },
+    { title: 'Dashboard', href: '/dashboard', icon: <Image src="/SquaresFour.svg" alt="To-Do" width={20} height={20} priority draggable={false} /> },
+    { title: 'User Profiles', href: '/users', icon: <Image src="/AddressBook.svg" alt="To-Do" width={20} height={20} priority draggable={false} /> },
+    { title: 'Cases', href: '/cases', icon: <Image src="/Notepad.svg" alt="To-Do" width={20} height={20} priority draggable={false} /> },
+    { title: 'Doctors', href: '/doctors', icon: <Image src="/Hospital.svg" alt="To-Do" width={20} height={20} priority draggable={false} /> },
+    { title: 'Quality Analysts', href: '/qa', icon: <Image src="/Pentagram.svg" alt="To-Do" width={20} height={20} priority draggable={false} /> },
 ];
 
 const BRAND = { name: 'OnlineMed', sub: 'Provider', logoUrl: '' };
@@ -202,20 +193,23 @@ export default function Sidebar({
 
     /* --------------------------- Footer (Collapsible) --------------------------- */
     const Footer = (
-        <div className="p-4 border border-gray-100 m-4 shadow-mf rounded-2xl">
-            <Collapsible open={userMenuOpen} onOpenChange={setUserMenuOpen}>
-                <CollapsibleTrigger asChild className='border-b'>
+        <div className="border border-gray-100 m-4 shadow-md rounded-2xl">
+            <Collapsible open={userMenuOpen} onOpenChange={setUserMenuOpen} >
+                <CollapsibleTrigger asChild className='p-4' >
                     <Button
                         variant="ghost"
                         className="w-full justify-between p-2 h-auto hover:bg-gray-50 rounded-lg"
                     >
                         <div className="flex items-center gap-3">
-                            <Avatar className="w-8 h-8">
-                                <AvatarImage src="/api/placeholder/40/40" alt="Clara Thompson" />
-                                <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold text-xs">
-                                    CT
-                                </AvatarFallback>
-                            </Avatar>
+                            <Image
+                                src="/Frame1.png"
+                                alt="user"
+                                width={40}
+                                height={40}
+                                priority
+                                draggable={false}
+                                className="rounded-md w-10 h-10"
+                            />
                             {sidebarOpen && (
                                 <div className="flex-1 text-left min-w-0">
                                     <p className="text-sm font-medium text-gray-900 truncate">Clara Thompson</p>
@@ -225,14 +219,14 @@ export default function Sidebar({
                         </div>
                         {sidebarOpen && (
                             <div className="text-gray-400">
-                                {userMenuOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                {userMenuOpen ? <ChevronUp className="w-4 h-4 text-blue-900" /> : <ChevronDown className="w-4 h-4 text-blue-900" />}
                             </div>
                         )}
                     </Button>
                 </CollapsibleTrigger>
 
                 {sidebarOpen && (
-                    <CollapsibleContent className="mt-2">
+                    <CollapsibleContent className="mt-2 border-t p-4">
                         <div className="space-y-1">
                             <Button
                                 variant="ghost"
@@ -248,7 +242,7 @@ export default function Sidebar({
                                 variant="ghost"
                                 size="sm"
                                 className="w-full justify-start h-8 px-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                                onClick={() => window.location.reload()}
+                                onClick={() => navTo('/')}
                             >
                                 <Image src="/SignOut.svg" alt="arrow-left" width={20} height={20} priority />
                                 Log out
@@ -300,13 +294,7 @@ export default function Sidebar({
                     >
                         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                {BRAND.logoUrl ? (
-                                    <img src={BRAND.logoUrl} alt={BRAND.name} className="w-8 h-8 rounded-full" />
-                                ) : (
-                                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                        <div className="w-4 h-4 bg-white rounded-full" />
-                                    </div>
-                                )}
+                                <Image src="/image.svg" alt="logo" width={40} height={40} priority />
                                 <div className="flex flex-col items-end justify-end">
                                     <h2 className="font-bold text-lg text-blue-900">{BRAND.name}</h2>
                                     {BRAND.sub && <p className="text-xs text-blue-900 font-semibold">{BRAND.sub}</p>}
@@ -360,10 +348,15 @@ export default function Sidebar({
                         <div className="p-4 border-t border-gray-100">
                             <div className="w-full justify-between p-2 h-auto rounded-lg">
                                 <div className="flex items-center gap-3">
-                                    <Avatar className="w-8 h-8">
-                                        <AvatarImage src="/api/placeholder/40/40" alt="Clara Thompson" />
-                                        <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold text-xs">CT</AvatarFallback>
-                                    </Avatar>
+                                    <Image
+                                        src="/Frame1.png"
+                                        alt="user"
+                                        width={40}
+                                        height={40}
+                                        priority
+                                        draggable={false}
+                                        className="rounded-md w-10 h-10"
+                                    />
                                     <div className="flex-1 text-left min-w-0">
                                         <p className="text-sm font-medium text-gray-900 truncate">Clara Thompson</p>
                                         <p className="text-xs text-gray-500 truncate">clara@medcare.com</p>
@@ -407,20 +400,6 @@ export default function Sidebar({
 
             {/* Mobile drawer */}
             {MobileDrawer}
-
-            {/* Outside rail toggle (desktop). Rotates with Tailwind when minimized. */}
-            {/* <button
-                type="button"
-                onClick={onToggleMinimize}
-                aria-label={minimized ? 'Expand sidebar' : 'Collapse sidebar'}
-                className={cn(
-                    'hidden md:flex fixed top-1/2 -translate-y-1/2 z-40 items-center justify-center',
-                    'h-8 w-8 rounded-full border bg-white shadow transition-all hover:bg-gray-50',
-                    minimized ? 'left-16' : 'left-64'
-                )}
-            >
-                <ChevronLeft className={cn('h-4 w-4 transition-transform', minimized && 'rotate-180')} />
-            </button> */}
         </>
     );
 }

@@ -78,7 +78,7 @@ export function Layout({ children }: LayoutProps) {
                         >
                             <Menu className="h-5 w-5" />
                         </Button>
-                        <span className="text-sm text-gray-700">OnlineMed</span>
+                        <span className="text-sm text-primary">OnlineMed</span>
                     </div>
                 </div>
 

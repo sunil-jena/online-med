@@ -108,7 +108,7 @@ export default function Form({
         validateOnMount: true,
         initialValues: { code: "" },
         validationSchema: Yup.object({
-            code: Yup.string().matches(/^\d{6}$/, "Enter the 6-digit code.").required("Enter the 6-digit code."),
+            code: Yup.string().matches(/^\d{4}$/, "Enter the 4-digit code.").required("Enter the 4-digit code."),
         }),
         onSubmit: async (_values, helpers) => {
             helpers.setSubmitting(true);

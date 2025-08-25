@@ -1,19 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { AnimatePresence, motion, type Transition } from "framer-motion";
 import Spinner from "./Spinner";
 import BackNext from "./BackNext";
 import OtpInput from "./OtpInput";
 import { useRouter } from "next/navigation";
 
-export type Step = "email" | "otp";
+export type Step = "email" | "transitioning" | "otp";
 
-/** Smooth spring & fade transitions (properly typed) */
-const ENTER_SPRING: Transition = { type: "spring", stiffness: 260, damping: 22, mass: 0.9 };
-const EXIT_FADE: Transition = { duration: 0.18, ease: [0.2, 0.0, 0.0, 1] };
+function HeaderBar({
+    email,
+    onChange,
+    animate = false,
+    sheenKey,
+    onAnimationEnd,
+    step = 'email'
+}: {
+    email: string;
+    onChange: () => void;
+    animate?: boolean;
+    sheenKey?: number;
+    onAnimationEnd?: React.AnimationEventHandler<HTMLDivElement>;
+    step?: string
+}) {
+    return (
+        <div
+            className={[
+                `${step === 'otp' ? 'rounded-t-xl' : 'rounded-xl'}  border bg-white overflow-hidden shadow-[var(--shadow-card)]`,
+                animate ? "animate-slide-up-visible animation-delay-150 animation-fill-mode-both motion-smooth" : "",
+            ].join(" ")}
+            style={{ borderColor: "var(--color-line)" }}
+            onAnimationEnd={onAnimationEnd}
+        >
+            <div
+                className="flex items-center justify-between px-4 py-3 border-b"
+                style={{ background: "var(--color-rail)", borderColor: "var(--color-line)" }}
+            >
+                <div className="flex items-center gap-2">
+                    <div className="label">Email</div>
+                    <span key={sheenKey} className="font-medium text-(--color-brand)">
+                        {email}
+                    </span>
+                </div>
+                <button type="button" className="dotted-link text-sm" onClick={onChange}>
+                    Change
+                </button>
+            </div>
+        </div>
+    );
+}
+
 
 export default function Form({
     onStepChange,
@@ -29,6 +67,16 @@ export default function Form({
     const [cooldown, setCooldown] = useState(0);
     const [sheenKey, setSheenKey] = useState(0);
 
+    const frameRef = useRef<HTMLDivElement | null>(null);
+    const [lockedHeight, setLockedHeight] = useState<number | null>(null);
+    const lockFrameHeight = () => {
+        const el = frameRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        setLockedHeight(rect.height);
+    };
+    const unlockFrameHeight = () => setLockedHeight(null);
+
     useEffect(() => {
         if (cooldown <= 0) return;
         const id = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
@@ -37,33 +85,33 @@ export default function Form({
 
     const emailForm = useFormik({
         initialValues: { email: "" },
+        validateOnMount: true,
         validationSchema: Yup.object({
             email: Yup.string().trim().email("Enter a valid email address.").required("Email is required."),
         }),
         onSubmit: async (values, helpers) => {
             helpers.setSubmitting(true);
             onSubmitVisuals?.();
-            await new Promise((r) => setTimeout(r, 500)); // small pause for nicer feel
-
-            setEmail(values.email.trim());
-            setCooldown(30); // UI copy
-            setStep("otp");
-            onStepChange?.("otp");
+            const trimmed = values.email.trim();
+            setEmail(trimmed);
+            setCooldown(30);
             setSheenKey((k) => k + 1);
             helpers.setSubmitting(false);
+            lockFrameHeight();
+            setStep("transitioning");
+            onStepChange?.("transitioning");
         },
     });
 
     const otpForm = useFormik({
         enableReinitialize: true,
+        validateOnMount: true,
         initialValues: { code: "" },
         validationSchema: Yup.object({
-            code: Yup.string().matches(/^\d{4}$/, "Enter the 4-digit code.").required("Enter the 4-digit code."),
+            code: Yup.string().matches(/^\d{6}$/, "Enter the 6-digit code.").required("Enter the 6-digit code."),
         }),
         onSubmit: async (_values, helpers) => {
             helpers.setSubmitting(true);
-            await new Promise((r) => setTimeout(r, 450)); // smooth verify pause
-            // Accept whatever the user typed and go to dashboard
             router.push("/dashboard");
             helpers.setSubmitting(false);
         },
@@ -80,92 +128,96 @@ export default function Form({
     };
 
     return (
-        <div className="max-w-2xl">
-            <AnimatePresence mode="popLayout" initial={false}>
-                {step === "email" && (
-                    <motion.div
-                        key="email-block"
-                        layout
-                        initial={{ opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0, transition: ENTER_SPRING }}
-                        exit={{ opacity: 0, y: -8, transition: EXIT_FADE }}
-                    >
-                        <motion.div layoutId="emailHeader" className="relative">
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="Enter your email"
-                                className={`input pr-11 ${emailForm.touched.email && emailForm.errors.email ? "input-error" : ""
-                                    } ${emailForm.isSubmitting ? "placeholder-brand" : ""}`}
-                                value={emailForm.values.email}
-                                onChange={emailForm.handleChange}
-                                onBlur={emailForm.handleBlur}
-                                onKeyDown={(e) => e.key === "Enter" && emailForm.submitForm()}
-                                inputMode="email"
-                                autoFocus
-                            />
-
-                            {emailForm.isSubmitting && (
-                                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--color-brand)">
-                                    <Spinner />
-                                </span>
-                            )}
-                            {emailForm.isSubmitting && <span className="input-halo animate-inputGlow" aria-hidden />}
-                        </motion.div>
-
-                        {emailForm.touched.email && emailForm.errors.email && (
-                            <div role="alert" className="mt-3 text-[#dc2626] shake">
-                                {emailForm.errors.email}
-                            </div>
-                        )}
-
-                        <BackNext
-                            onBack={() => router.push("/")}
-                            onNext={() => emailForm.submitForm()}
-                            nextDisabled={!emailForm.isValid || emailForm.isSubmitting}
+        <div
+            className="max-w-2xl"
+            ref={frameRef}
+            style={lockedHeight != null ? { height: lockedHeight, transition: "height 240ms ease" } : undefined}
+        >
+            {step === "email" && (
+                <div className="animate-fade-in" key="email-block">
+                    <div className="relative">
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            className={[
+                                "input pr-11",
+                                emailForm.touched.email && emailForm.errors.email ? "input-error" : "",
+                                emailForm.isSubmitting ? "placeholder-brand" : "",
+                            ].join(" ")}
+                            value={emailForm.values.email}
+                            onChange={emailForm.handleChange}
+                            onBlur={emailForm.handleBlur}
+                            onKeyDown={(e) => e.key === "Enter" && emailForm.submitForm()}
+                            inputMode="email"
+                            autoFocus
                         />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        {emailForm.isSubmitting && (
+                            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--color-brand)">
+                                <Spinner />
+                            </span>
+                        )}
+                        {emailForm.isSubmitting && <span className="input-halo animate-inputGlow" aria-hidden />}
+                    </div>
 
-            <AnimatePresence initial={false} mode="popLayout">
-                {step === "otp" && (
-                    <motion.div
+                    {emailForm.touched.email && emailForm.errors.email && (
+                        <div role="alert" className="mt-3 text-[#dc2626] animate-shake">
+                            {emailForm.errors.email}
+                        </div>
+                    )}
+
+                    <BackNext
+                        onBack={() => router.push("/")}
+                        onNext={() => emailForm.submitForm()}
+                        nextDisabled={!emailForm.isValid || emailForm.isSubmitting}
+                    />
+                </div>
+            )}
+
+            {step === "transitioning" && (
+                <div className="relative" key={`transition-${sheenKey}`}>
+                    <HeaderBar
+                        email={email}
+                        sheenKey={sheenKey}
+                        animate
+                        onChange={backToEmail}
+                        step={'transitioning'}
+                        onAnimationEnd={(e) => {
+                            if (e.currentTarget !== e.target) return;
+                            if (step !== "transitioning") return;
+                            setStep("otp");
+                            onStepChange?.("otp");
+                            // allow next layout to settle, then unlock height
+                            requestAnimationFrame(() => unlockFrameHeight());
+                        }}
+                    />
+                </div>
+            )}
+
+            {step === "otp" && (
+                <>
+                    <HeaderBar email={email} onChange={backToEmail} sheenKey={sheenKey} step={step} />
+                    <div
                         key="otp-card"
-                        layout
-                        className="mt-2 rounded-xl border border-(--color-line) bg-white overflow-hidden shadow-[var(--shadow-card)]"
-                        initial={{ opacity: 0, y: 16, scale: 0.985 }}
-                        animate={{ opacity: 1, y: 0, scale: 1, transition: ENTER_SPRING }}
-                        exit={{ opacity: 0, y: -8, transition: EXIT_FADE }}
+                        className="
+               rounded-b-xl border bg-white overflow-hidden shadow-[var(--shadow-card)]
+              animate-slide-down animation-delay-150 animation-fill-mode-both motion-smooth
+            "
+                        style={{ borderColor: "var(--color-line)" }}
                     >
-                        <motion.div
-                            layoutId="emailHeader"
-                            className="flex items-center justify-between px-4 py-3 bg-(--color-brand-tint)"
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className="label">Email</div>
-                                <span key={sheenKey} className="font-medium brand-sheen-rtl">
-                                    {email}
-                                </span>
-                            </div>
-                            <button type="button" className="dotted-link text-sm" onClick={backToEmail}>
-                                Change
-                            </button>
-                        </motion.div>
-
-                        <div className="border-t border-(--color-line) px-4 py-5">
+                        <div className="px-4 py-5">
                             <div className="mb-2 label">Enter verification code</div>
                             <div className="label">
-                                Enter the code sent to <span className="font-medium text-(--color-ink)">{email}</span> to use your
-                                saved information.
+                                Enter the code sent to <span className="font-medium text-(--color-ink)">{email}</span> to use your saved information.
                             </div>
 
                             <div className="mt-4">
                                 <OtpInput
                                     value={otpForm.values.code}
-                                    onChange={(v) => otpForm.setFieldValue("code", v)}
+                                    onChange={(v: string) => otpForm.setFieldValue("code", v)}
                                     error={!!otpForm.errors.code && otpForm.touched.code}
+                                    length={6}
                                 />
                                 <input type="hidden" name="code" value={otpForm.values.code} />
                             </div>
@@ -195,9 +247,9 @@ export default function Form({
                                 nextDisabled={!otpForm.isValid || otpForm.isSubmitting}
                             />
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

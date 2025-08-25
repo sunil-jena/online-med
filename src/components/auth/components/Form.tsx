@@ -217,7 +217,7 @@ export default function Form({
                                     value={otpForm.values.code}
                                     onChange={(v: string) => otpForm.setFieldValue("code", v)}
                                     error={!!otpForm.errors.code && otpForm.touched.code}
-                                    length={6}
+                                    length={4}
                                 />
                                 <input type="hidden" name="code" value={otpForm.values.code} />
                             </div>
@@ -241,13 +241,13 @@ export default function Form({
                                 </div>
                             )}
 
-                            <BackNext
-                                onBack={backToEmail}
-                                onNext={() => otpForm.submitForm()}
-                                nextDisabled={!otpForm.isValid || otpForm.isSubmitting}
-                            />
                         </div>
                     </div>
+                    <BackNext
+                        onBack={backToEmail}
+                        onNext={() => otpForm.submitForm()}
+                        nextDisabled={!otpForm.isValid || otpForm.isSubmitting}
+                    />
                 </>
             )}
         </div>

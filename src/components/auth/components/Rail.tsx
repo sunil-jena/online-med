@@ -79,7 +79,7 @@ const Rail = () => {
     const rating = clamp(t.rating, 0, 5);
 
     return (
-        <div className="flex h-full flex-col justify-between">
+        <div className="h-full flex flex-col justify-between">
             <div>
                 <div className="text-xl font-semibold">OnlineMed</div>
 
@@ -130,7 +130,6 @@ const Rail = () => {
                     {testimonials.map((_, i) => {
                         const active = i === current;
                         return (
-                            // No dynamic/random attributes; deterministic classes only
                             <button
                                 key={i}
                                 onClick={() => setCurrent(i)}

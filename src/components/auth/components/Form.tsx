@@ -90,11 +90,7 @@ export default function Form({
                         animate={{ opacity: 1, y: 0, transition: ENTER_SPRING }}
                         exit={{ opacity: 0, y: -8, transition: EXIT_FADE }}
                     >
-                        <label className="label" htmlFor="email">
-                            Email
-                        </label>
-
-                        <motion.div layoutId="emailHeader" className="relative mt-2">
+                        <motion.div layoutId="emailHeader" className="relative">
                             <input
                                 id="email"
                                 name="email"

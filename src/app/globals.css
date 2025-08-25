@@ -1,12 +1,3 @@
-/* app/globals.css — Tailwind v4 (Next.js App Router)  */
-/* Color system aligned to the provided guide:
-   Primary Blue #2463EB
-   Surface Light #F3F5FA
-   Status Orange #F97316
-   Status Green  #00B774
-   White         #FFFFFF
-   Neutrals: 100 #111827, 75 #4D525D, 50 #888B93, 25 #C3C5C9, 10 #E7E8E9, 5 #F3F3F4
-*/
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------
@@ -352,8 +343,10 @@ input[type='text']::-webkit-search-cancel-button {
 
 .dotted-link {
   color: var(--color-ink);
-  text-decoration: underline dotted;
-  text-underline-offset: 2px;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1.5px;
 }
 
 .dotted-link:hover {
@@ -497,27 +490,22 @@ input[type='text']::-webkit-search-cancel-button {
 
 #nprogress .bar {
   background: var(--color-primary);
-  /* Change this to your preferred color */
   position: fixed;
   z-index: 1031;
   top: 0;
   left: 0;
   width: 100%;
   height: 4px;
-  /* You can adjust the thickness */
 }
 
 #nprogress .peg {
   display: none;
-  /* Hide the loading peg */
 }
 
 #nprogress .spinner {
   display: none;
-  /* Hide the spinner */
 }
 
-/* Custom NProgress styles */
 #nprogress {
   pointer-events: none;
 }
